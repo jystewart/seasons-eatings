@@ -16,7 +16,7 @@ helpers do
   end
 end
 
-get "/" do
+get "/edition/?" do
   url = "http://api.scraperwiki.com/api/1.0/datastore/sqlite?format=jsondict&name=bbc_seasonal_foods_by_month&query=select%20*%20from%20%60swdata%60"
   data = MultiJson.decode(open(url).read).inject({}) { |h, d| h[d["name"]] = d; h }
 
@@ -28,4 +28,29 @@ get "/" do
   @now_in_season.delete(@featured)
 
   erb :publication
+end
+
+get "/sample/?" do
+  url = "http://api.scraperwiki.com/api/1.0/datastore/sqlite?format=jsondict&name=bbc_seasonal_foods_by_month&query=select%20*%20from%20%60swdata%60"
+  data = MultiJson.decode(open(url).read).inject({}) { |h, d| h[d["name"]] = d; h }
+  @now_in_season = MultiJson.decode(data[current_month]["now_in_season"])
+  @last_chance = MultiJson.decode(data[current_month]["last_chance"])
+  @now_out_of_season = MultiJson.decode(data[current_month]["now_out_of_season"])
+  
+  @featured = @now_in_season.shuffle.first
+  @now_in_season.delete(@featured)
+
+  erb :publication
+end
+
+get '/meta.json' do
+    content_type :json
+  {
+    "name" => "Seasons Eatings",
+    "description" => "JTW can fill this in later",
+    "delivered_on" => "every day",
+    "external_configuration" => false,
+    "send_timezone_info" => false,
+    "send_delivery_count" =>  true,
+  }.to_json
 end
