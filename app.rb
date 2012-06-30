@@ -27,6 +27,7 @@ get "/edition/?" do
   @featured = @now_in_season.shuffle.first
   @now_in_season.delete(@featured)
 
+  etag "#{current_month}"
   erb :publication
 end
 
